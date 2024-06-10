@@ -14,10 +14,10 @@ int main()
 		return -1;
 	}
 
-	// 绑定本地IP端口 - 87878
+	// 绑定本地IP端口 - 60001
 	struct sockaddr_in saddr;
 	saddr.sin_family = AF_INET;
-	saddr.sin_port = htons(87878);
+	saddr.sin_port = htons(60001);
 	saddr.sin_addr.s_addr = INADDR_ANY; // 该宏实际值为0 - 即0.0.0.0
 										// 即该套接字可以绑定本地任意一个IP地址
 										// 0没有大小端之分，因此不需要转换
