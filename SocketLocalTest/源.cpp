@@ -2,6 +2,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 
 #include <WinSock2.h>
+#include <WS2tcpip.h>
 #include <iostream>
 #include <stdio.h>
 
@@ -20,6 +21,7 @@ int main()
 		perror("startup");
 		return -1;
 	}
+	cout << "startup" << endl;
 
 	// 创建用于通信的套接字
 	SOCKET fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -28,19 +30,22 @@ int main()
 		perror("socket");
 		return -1;
 	}
+	cout << "socket" << endl;
 
 	// 连接服务器IP 端口
 	struct sockaddr_in saddr;
 	saddr.sin_family = AF_INET;
-	saddr.sin_port = htons(87878);
-	saddr.sin_addr.S_un.S_addr = inet_addr("47.116.37.143");
-	int ret = connect(fd, (struct sockaddr*)&saddr, sizeof saddr);
+	saddr.sin_port = htons(60001);
+	//saddr.sin_addr.S_un.S_addr = inet_addr("47.116.37.143");
+	inet_pton(AF_INET, "47.116.37.143", &saddr.sin_addr.S_un.S_addr);
+	int ret = connect(fd, (sockaddr*)&saddr, sizeof saddr);
 	if (ret == -1)
 	{
 		perror("connect");
 		return -1;
 	}
-
+	cout << "connect" << endl;
+	
 	// 通信
 	int num = 0;
 	while (1)
