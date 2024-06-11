@@ -12,6 +12,8 @@
 
 using namespace std;
 
+pair<short, short> mp[4][4]; // 棋子类型 剩余存在步数
+
 void DrawMap()
 {
 	line(200, 0, 200, 600);
@@ -22,10 +24,39 @@ void DrawMap()
 	line(0, 600, 600, 600);
 }
 
+int judge() // 未完成
+{
+	for (int i = 0; i < 3; i++) // 判断行
+	{
+		if (
+			mp[i][0].second &&
+			mp[i][1].second &&
+			mp[i][2].second &&
+			mp[i][0].first ==
+			mp[i][1].first ==
+			mp[i][2].first)
+			return mp[i][0].first;
+	}
+	for (int i = 0; i < 3; i++) // 判断列
+	{
+		if (
+			mp[0][i].second &&
+			mp[1][i].second &&
+			mp[2][i].second &&
+			mp[0][i].first ==
+			mp[1][i].first ==
+			mp[2][i].first)
+			return mp[0][i].first;
+	}
+	
+}
+
 int main()
 {
 	// 初始化画布与线型等 - 600 * 700
 	initgraph(600, 700);
+	setbkcolor(DARKGRAY);
+	cleardevice();
 	LINESTYLE lsy;
 	getlinestyle(&lsy);
 	lsy.thickness = 10;
@@ -56,7 +87,6 @@ int main()
 	struct sockaddr_in saddr;
 	saddr.sin_family = AF_INET;
 	saddr.sin_port = htons(60001);
-	//saddr.sin_addr.S_un.S_addr = inet_addr("47.116.37.143");
 	inet_pton(AF_INET, "47.116.37.143", &saddr.sin_addr.S_un.S_addr);
 	int ret = connect(fd, (sockaddr*)&saddr, sizeof saddr);
 	if (ret == -1)
@@ -67,18 +97,18 @@ int main()
 	cout << "connect" << endl;
 
 	// 通信
-	char num[2];
-	char buff[100];
+	char num[2]; // 定义： 0 - 游戏数据； 1 - 需要输出的文字
+	char buff[100]; // 若buff传入游戏数据：
+					// 定义：【0】 - 棋子x；【1】 - 棋子y
+					// 0 - 圆形； 1 - 矩形
+					// 定义 0 为己方颜色
+	char buffout[100]; // 传出游戏数据
 	ExMessage message;
-	short relx = 0, rely = 0;
+	short relx = 0, rely = 0; // 己方
+	short anox = 0, anoy = 0; // 敌方
+	
 	while (1)
-	{
-		//// 发送数据
-		//sprintf(buff, "Hello, %d\n", num++);
-		//send(fd, buff, strlen(buff) + 1, 0);
-
-		DrawMap();
-
+	{	
 		// 接收数据
 		TCHAR waiting[] = _T("Waiting for the other to act.");
 		outtextxy(30, 650, waiting);
@@ -88,17 +118,18 @@ int main()
 		if (len > 0)
 		{
 			clearrectangle(0, 660, 600, 700);
-			if (buff[0] == '1') // 该信息需要打印
+			if (num[0] == '1') // 该信息需要打印
 			{
 				recv(fd, buff, sizeof buff, 0);
 				outtextxy(30, 650, buff);
 			}
-			else if (buff[0] == '0') // 该信息为游戏信息
+			else if (num[0] == '0') // 该信息为游戏信息
 			{
-
+				recv(fd, buff, sizeof buff, 0);
+				anox = buff[0] - '0';
+				anoy = buff[1] - '0';
+				mp[anox][anoy] = { 1, 3 };
 			}
-
-		
 		}
 		else if (len == 0)
 		{
@@ -110,8 +141,26 @@ int main()
 			perror("recv");
 			return -1;
 		}
-	
-		while (1) // 获取鼠标信息
+
+		// 绘制已存在的棋子
+		DrawMap();
+		for (int i = 0; i < 3; i++)
+			for (int j = 0; j < 3; j++)
+			{
+				if (mp[i][j].second)
+					mp[i][j].second--;
+				if (mp[i][j].second)
+				{
+					if (!mp[i][j].first) // 0 - 圆形
+						fillcircle(i * 200 + 100, j * 200 + 100, 70);
+					else
+						fillrectangle(i * 200 + 30, j * 200 + 30, i * 200 + 170, j * 200 + 170);
+				}
+			}
+		fillrectangle(anox * 200 + 30, anoy * 200 + 30, anox * 200 + 170, anoy * 200 + 170);
+		
+		// 获取鼠标信息
+		while (1) 
 		{
 			message = getmessage();
 			if (message.message == WM_LBUTTONDOWN)
@@ -121,6 +170,15 @@ int main()
 				break;
 			}
 		}
+		mp[relx][rely] = {0, 3};
+		fillcircle(relx * 200 + 100, rely * 200 + 100, 70);
+
+		// 判断是否有人获胜
+		judge();
+
+		// 发送数据
+		sprintf(buffout, "%d%d", relx, rely);
+		send(fd, buffout, strlen(buffout) + 1, 0);
 	}
 
 	// 关闭文件描述符

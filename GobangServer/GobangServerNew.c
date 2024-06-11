@@ -71,7 +71,7 @@ int main()
 	struct sockaddr_in saddr2;
 	saddr2.sin_family = AF_INET;
 	saddr2.sin_port = htons(60001);
-	saddr2.sin_addr.s_addr = INADDR_ANY; 
+	saddr2.sin_addr.s_addr = INADDR_ANY;
 	int ret2 = bind(fd2, (struct sockaddr*)&saddr2, sizeof saddr2);
 	if (ret2 == -1)
 	{
