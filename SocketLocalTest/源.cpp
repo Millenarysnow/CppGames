@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS 1
+Ôªø#define _CRT_SECURE_NO_WARNINGS 1
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 
 #include <WinSock2.h>
@@ -12,7 +12,7 @@ using namespace std;
 
 int main()
 {
-	// ≥ı ºªØwinsockø‚
+	// ÂàùÂßãÂåñwinsockÂ∫ì
 	WSADATA data;
 	int test = 0;
 	test = WSAStartup(MAKEWORD(2, 2), &data);
@@ -23,7 +23,7 @@ int main()
 	}
 	cout << "startup" << endl;
 
-	// ¥¥Ω®”√”⁄Õ®–≈µƒÃ◊Ω”◊÷
+	// ÂàõÂª∫Áî®‰∫éÈÄö‰ø°ÁöÑÂ•óÊé•Â≠ó
 	SOCKET fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == -1)
 	{
@@ -32,7 +32,7 @@ int main()
 	}
 	cout << "socket" << endl;
 
-	// ¡¨Ω”∑˛ŒÒ∆˜IP ∂Àø⁄
+	// ËøûÊé•ÊúçÂä°Âô®IP Á´ØÂè£
 	struct sockaddr_in saddr;
 	saddr.sin_family = AF_INET;
 	saddr.sin_port = htons(60001);
@@ -46,18 +46,18 @@ int main()
 	}
 	cout << "connect" << endl;
 	
-	// Õ®–≈
+	// ÈÄö‰ø°
 	int num = 0;
 	while (1)
 	{
-		// ∑¢ÀÕ ˝æ›
+		// ÂèëÈÄÅÊï∞ÊçÆ
 		char buff[1024];
-		sprintf(buff, "ƒ„∫√£¨ ¿ΩÁ, %d\n", num++);
+		sprintf(buff, "‰Ω†Â•Ω, % d\n", num++);
 		send(fd, buff, strlen(buff) + 1, 0);
 
-		// Ω” ’ ˝æ›
+		// Êé•Êî∂Êï∞ÊçÆ
 		memset(buff, 0, sizeof buff);
-		int len = recv(fd, buff, sizeof buff, 0); // recvŒ™◊Ë»˚∫Ø ˝
+		int len = recv(fd, buff, sizeof buff, 0); // recv‰∏∫ÈòªÂ°ûÂáΩÊï∞
 		if (len > 0)
 		{
 			cout << "server say:" << buff << endl;
@@ -65,6 +65,7 @@ int main()
 		else if (len == 0)
 		{
 			cout << "Server break" << endl;
+			return -1;
 		}
 		else
 		{
@@ -74,10 +75,10 @@ int main()
 		Sleep(1);
 	}
 
-	// πÿ±’Œƒº˛√Ë ˆ∑˚
+	// ÂÖ≥Èó≠Êñá‰ª∂ÊèèËø∞Á¨¶
 	closesocket(fd);
 
-	//  Õ∑≈Ã◊Ω”◊÷ø‚
+	// ÈáäÊîæÂ•óÊé•Â≠óÂ∫ì
 	WSACleanup();
 
 	return 0;
