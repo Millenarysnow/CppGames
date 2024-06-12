@@ -35,7 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{3cd22615-772d-4919-8929-fed82192ff2d}</ProjectGuid>
+    <ProjectGuid>{49fdf472-bad3-4a9f-9bd8-d65eb11dfae5}</ProjectGuid>
     <Keyword>Linux</Keyword>
     <RootNamespace>GobangServer</RootNamespace>
     <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
@@ -75,7 +75,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
-    <ClCompile Include="GobangServerNew.c" />
+    <ClCompile Include="GobangServer.c" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

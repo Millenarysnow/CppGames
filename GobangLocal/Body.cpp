@@ -24,7 +24,7 @@ void DrawMap()
 	line(0, 600, 600, 600);
 }
 
-int judge() // 未完成
+int judge() // 有人获胜 - 返回获胜人的编号； 无 - 返回2
 {
 	for (int i = 0; i < 3; i++) // 判断行
 	{
@@ -33,6 +33,7 @@ int judge() // 未完成
 			mp[i][1].second &&
 			mp[i][2].second &&
 			mp[i][0].first ==
+			mp[i][1].first &&
 			mp[i][1].first ==
 			mp[i][2].first)
 			return mp[i][0].first;
@@ -44,11 +45,40 @@ int judge() // 未完成
 			mp[1][i].second &&
 			mp[2][i].second &&
 			mp[0][i].first ==
+			mp[1][i].first &&
 			mp[1][i].first ==
 			mp[2][i].first)
 			return mp[0][i].first;
 	}
+	for (int i = 0; i < 3; i++) // 主对角线方向 y = x + b
+	{
+		if (
+			mp[0][i % 3].second &&
+			mp[1][(i + 1) % 3].second &&
+			mp[2][(i + 2) % 3].second &&
+			mp[0][i % 3].first ==
+			mp[1][(i + 1) % 3].first &&
+			mp[1][(i + 1) % 3].first ==
+			mp[2][(i + 2) % 3].first
+			)
+			return mp[0][i % 3].first;
+	}
+
+	for (int i = 2; i < 5; i++) // 副对角线方向 y = -x + b(2 -> 4)
+	{
+		if (
+			mp[0][i % 3].second &&
+			mp[1][(i - 1) % 3].second && 
+			mp[2][(i - 2) % 3].second && 
+			mp[0][i % 3].first ==
+			mp[1][(i - 1) % 3].first &&
+			mp[1][(i - 1) % 3].first ==
+			mp[2][(i - 2) % 3].first
+			) 
+			return mp[0][i % 3].first;
+	}
 	
+	return 2;
 }
 
 int main()
@@ -62,6 +92,8 @@ int main()
 	lsy.thickness = 10;
 	setlinestyle(&lsy);
 	setlinecolor(WHITE);
+	TCHAR tips[] = _T("Connected for server.");
+	outtextxy(30, 350, tips);
 
 	// 初始化winsock库
 	WSADATA data;
@@ -106,6 +138,8 @@ int main()
 	ExMessage message;
 	short relx = 0, rely = 0; // 己方
 	short anox = 0, anoy = 0; // 敌方
+
+	cleardevice();
 	
 	while (1)
 	{	
@@ -174,7 +208,19 @@ int main()
 		fillcircle(relx * 200 + 100, rely * 200 + 100, 70);
 
 		// 判断是否有人获胜
-		judge();
+		int jud = judge();
+		if (jud == 0) // 己方获胜
+		{
+			char gmover[] = "You Win!";
+			outtextxy(30, 650, gmover);
+			break;
+		}
+		else if (jud == 1) // 敌方获胜
+		{
+			char gmover[] = "You loose!";
+			outtextxy(30, 650, gmover);
+			break;
+		}
 
 		// 发送数据
 		sprintf(buffout, "%d%d", relx, rely);
