@@ -18,6 +18,10 @@ int init(int cnt) // 初始连接
 		return -1;
 	}
 
+	// 设置端口复用
+	int opt =1;
+	setsockopt(fdo, SOL_SOCKET, SO_REUSEADDR,& opt, sizeof(opt));
+
 	// 绑定本地IP端口 - 60006
 	struct sockaddr_in saddro;
 	saddro.sin_family = AF_INET;
