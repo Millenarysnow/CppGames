@@ -126,6 +126,7 @@ int main()
 	setlinecolor(WHITE);
 	TCHAR tips[] = _T("Connected for server.");
 	outtextxy(30, 350, tips);
+	DrawMap();
 
 	// 初始化winsock库
 	WSADATA data;
@@ -172,6 +173,7 @@ int main()
 	short anox = 0, anoy = 0; // 敌方
 
 	cleardevice();
+	DrawMap();
 
 	while (1)
 	{
@@ -270,6 +272,10 @@ int main()
 
 	// 释放套接字库
 	WSACleanup();
+
+	// 控制进入死循环
+	while(1)
+	{ }
 
 	return 0;
 }
