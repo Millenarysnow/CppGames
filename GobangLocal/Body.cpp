@@ -1,4 +1,4 @@
-ï»¿#define _CRT_SECURE_NO_WARNINGS 1
+#define _CRT_SECURE_NO_WARNINGS 1
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 
 #include <WinSock2.h>
@@ -12,7 +12,7 @@
 
 using namespace std;
 
-pair<short, short> mp[4][4]; // æ£‹å­ç±»å‹ å‰©ä½™å­˜åœ¨æ­¥æ•°
+pair<short, short> mp[4][4]; // Æå×ÓÀàĞÍ Ê£Óà´æÔÚ²½Êı
 
 void DrawMap()
 {
@@ -24,9 +24,9 @@ void DrawMap()
 	line(0, 600, 600, 600);
 }
 
-int judge() // æœ‰äººè·èƒœ - è¿”å›è·èƒœäººçš„ç¼–å·ï¼› æ—  - è¿”å›2
+int judge() // ÓĞÈË»ñÊ¤ - ·µ»Ø»ñÊ¤ÈËµÄ±àºÅ£» ÎŞ - ·µ»Ø2
 {
-	for (int i = 0; i < 3; i++) // åˆ¤æ–­è¡Œ
+	for (int i = 0; i < 3; i++) // ÅĞ¶ÏĞĞ
 	{
 		if (
 			mp[i][0].second &&
@@ -38,7 +38,7 @@ int judge() // æœ‰äººè·èƒœ - è¿”å›è·èƒœäººçš„ç¼–å·ï¼› æ—  - è¿”å›2
 			mp[i][2].first)
 			return mp[i][0].first;
 	}
-	for (int i = 0; i < 3; i++) // åˆ¤æ–­åˆ—
+	for (int i = 0; i < 3; i++) // ÅĞ¶ÏÁĞ
 	{
 		if (
 			mp[0][i].second &&
@@ -50,7 +50,7 @@ int judge() // æœ‰äººè·èƒœ - è¿”å›è·èƒœäººçš„ç¼–å·ï¼› æ—  - è¿”å›2
 			mp[2][i].first)
 			return mp[0][i].first;
 	}
-	for (int i = 0; i < 3; i++) // ä¸»å¯¹è§’çº¿æ–¹å‘ y = x + b
+	for (int i = 0; i < 3; i++) // Ö÷¶Ô½ÇÏß·½Ïò y = x + b
 	{
 		if (
 			mp[0][i % 3].second &&
@@ -64,26 +64,58 @@ int judge() // æœ‰äººè·èƒœ - è¿”å›è·èƒœäººçš„ç¼–å·ï¼› æ—  - è¿”å›2
 			return mp[0][i % 3].first;
 	}
 
-	for (int i = 2; i < 5; i++) // å‰¯å¯¹è§’çº¿æ–¹å‘ y = -x + b(2 -> 4)
+	for (int i = 2; i < 5; i++) // ¸±¶Ô½ÇÏß·½Ïò y = -x + b(2 -> 4)
 	{
 		if (
 			mp[0][i % 3].second &&
-			mp[1][(i - 1) % 3].second && 
-			mp[2][(i - 2) % 3].second && 
+			mp[1][(i - 1) % 3].second &&
+			mp[2][(i - 2) % 3].second &&
 			mp[0][i % 3].first ==
 			mp[1][(i - 1) % 3].first &&
 			mp[1][(i - 1) % 3].first ==
 			mp[2][(i - 2) % 3].first
-			) 
+			)
 			return mp[0][i % 3].first;
 	}
-	
+
 	return 2;
+}
+
+int GetPort() // »ñµÃÍ¨ĞÅ¶Ë¿Ú
+{
+	// ´´½¨ÓÃÓÚÍ¨ĞÅµÄÌ×½Ó×Ö
+	SOCKET fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (fd == -1)
+	{
+		perror("socket");
+		return -1;
+	}
+
+	// Á¬½Ó·şÎñÆ÷IP ¶Ë¿Ú
+	struct sockaddr_in saddr;
+	saddr.sin_family = AF_INET;
+	saddr.sin_port = htons(60006);
+	inet_pton(AF_INET, "47.116.37.143", &saddr.sin_addr.S_un.S_addr);
+	int ret = connect(fd, (sockaddr*)&saddr, sizeof saddr);
+	if (ret == -1)
+	{
+		perror("connect");
+		return -1;
+	}
+
+	// »ñÈ¡¶Ë¿Ú
+	char num[10];
+	int len = recv(fd, num, sizeof num, 0);
+
+	// ¹Ø±ÕÌ×½Ó×Ö
+	closesocket(fd);
+
+	return (num[0] - '0');
 }
 
 int main()
 {
-	// åˆå§‹åŒ–ç”»å¸ƒä¸çº¿å‹ç­‰ - 600 * 700
+	// ³õÊ¼»¯»­²¼ÓëÏßĞÍµÈ - 600 * 700
 	initgraph(600, 700);
 	setbkcolor(DARKGRAY);
 	cleardevice();
@@ -95,7 +127,7 @@ int main()
 	TCHAR tips[] = _T("Connected for server.");
 	outtextxy(30, 350, tips);
 
-	// åˆå§‹åŒ–winsockåº“
+	// ³õÊ¼»¯winsock¿â
 	WSADATA data;
 	int test = 0;
 	test = WSAStartup(MAKEWORD(2, 2), &data);
@@ -104,21 +136,22 @@ int main()
 		perror("startup");
 		return -1;
 	}
-	cout << "startup" << endl;
 
-	// åˆ›å»ºç”¨äºé€šä¿¡çš„å¥—æ¥å­—
+	// »ñÈ¡Á¬½Ó¶Ë¿ÚÄ©Î»Êı - 6000x
+	int lst = GetPort();
+
+	// ´´½¨ÓÃÓÚÍ¨ĞÅµÄÌ×½Ó×Ö
 	SOCKET fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == -1)
 	{
 		perror("socket");
 		return -1;
 	}
-	cout << "socket" << endl;
 
-	// è¿æ¥æœåŠ¡å™¨IP ç«¯å£
+	// Á¬½Ó·şÎñÆ÷IP ¶Ë¿Ú
 	struct sockaddr_in saddr;
 	saddr.sin_family = AF_INET;
-	saddr.sin_port = htons(60001);
+	saddr.sin_port = htons((60000 + lst));
 	inet_pton(AF_INET, "47.116.37.143", &saddr.sin_addr.S_un.S_addr);
 	int ret = connect(fd, (sockaddr*)&saddr, sizeof saddr);
 	if (ret == -1)
@@ -126,43 +159,49 @@ int main()
 		perror("connect");
 		return -1;
 	}
-	cout << "connect" << endl;
 
-	// é€šä¿¡
-	char num[2]; // å®šä¹‰ï¼š 0 - æ¸¸æˆæ•°æ®ï¼› 1 - éœ€è¦è¾“å‡ºçš„æ–‡å­—
-	char buff[100]; // è‹¥buffä¼ å…¥æ¸¸æˆæ•°æ®ï¼š
-					// å®šä¹‰ï¼šã€0ã€‘ - æ£‹å­xï¼›ã€1ã€‘ - æ£‹å­y
-					// 0 - åœ†å½¢ï¼› 1 - çŸ©å½¢
-					// å®šä¹‰ 0 ä¸ºå·±æ–¹é¢œè‰²
-	char buffout[100]; // ä¼ å‡ºæ¸¸æˆæ•°æ®
+	// Í¨ĞÅ
+	char num[2]; // ¶¨Òå£º 0 - ÓÎÏ·Êı¾İ£» 1 - ĞèÒªÊä³öµÄÎÄ×Ö
+	char buff[100]; // Èôbuff´«ÈëÓÎÏ·Êı¾İ£º
+					// ¶¨Òå£º¡¾0¡¿ - Æå×Óx£»¡¾1¡¿ - Æå×Óy
+					// 0 - Ô²ĞÎ£» 1 - ¾ØĞÎ
+					// ¶¨Òå 0 Îª¼º·½ÑÕÉ«
+	char buffout[100]; // ´«³öÓÎÏ·Êı¾İ
 	ExMessage message;
-	short relx = 0, rely = 0; // å·±æ–¹
-	short anox = 0, anoy = 0; // æ•Œæ–¹
+	short relx = 0, rely = 0; // ¼º·½
+	short anox = 0, anoy = 0; // µĞ·½
 
 	cleardevice();
-	
+
 	while (1)
-	{	
-		// æ¥æ”¶æ•°æ®
-		TCHAR waiting[] = _T("Waiting for the other to act.");
-		outtextxy(30, 650, waiting);
+	{
+		// ½ÓÊÕÊı¾İ
 		memset(buff, 0, sizeof buff);
 		memset(num, 0, sizeof num);
-		int len = recv(fd, num, sizeof num, 0); 
+		int len = recv(fd, num, sizeof num, 0);
 		if (len > 0)
 		{
 			clearrectangle(0, 660, 600, 700);
-			if (num[0] == '1') // è¯¥ä¿¡æ¯éœ€è¦æ‰“å°
+			if (num[0] == '1') // ¸ÃĞÅÏ¢ĞèÒª´òÓ¡
 			{
 				recv(fd, buff, sizeof buff, 0);
 				outtextxy(30, 650, buff);
 			}
-			else if (num[0] == '0') // è¯¥ä¿¡æ¯ä¸ºæ¸¸æˆä¿¡æ¯
+			else if (num[0] == '2') // ¸ÃĞÅÏ¢ÎªÊ×¸ö - ĞèÒªµÈ´ıÍæ¼Ò2
 			{
 				recv(fd, buff, sizeof buff, 0);
-				anox = buff[0] - '0';
-				anoy = buff[1] - '0';
-				mp[anox][anoy] = { 1, 3 };
+				outtextxy(30, 650, buff);
+				memset(buff, 0, sizeof buff);
+				recv(fd, buff, sizeof buff, 0);
+				clearrectangle(0, 660, 600, 700);
+				outtextxy(30, 650, buff);
+			}
+			else if (num[0] == '0') // ¸ÃĞÅÏ¢ÎªÓÎÏ·ĞÅÏ¢
+			{
+				recv(fd, buff, sizeof buff, 0);
+				anox = buff[0] - '0'; // ¶Ô·½x
+				anoy = buff[1] - '0'; // ¶Ô·½y
+				mp[anox][anoy] = { 1, 4 };
 			}
 		}
 		else if (len == 0)
@@ -176,7 +215,7 @@ int main()
 			return -1;
 		}
 
-		// ç»˜åˆ¶å·²å­˜åœ¨çš„æ£‹å­
+		// »æÖÆÒÑ´æÔÚµÄÆå×Ó
 		DrawMap();
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 3; j++)
@@ -185,16 +224,15 @@ int main()
 					mp[i][j].second--;
 				if (mp[i][j].second)
 				{
-					if (!mp[i][j].first) // 0 - åœ†å½¢
+					if (!mp[i][j].first) // 0 - Ô²ĞÎ
 						fillcircle(i * 200 + 100, j * 200 + 100, 70);
 					else
 						fillrectangle(i * 200 + 30, j * 200 + 30, i * 200 + 170, j * 200 + 170);
 				}
 			}
-		fillrectangle(anox * 200 + 30, anoy * 200 + 30, anox * 200 + 170, anoy * 200 + 170);
-		
-		// è·å–é¼ æ ‡ä¿¡æ¯
-		while (1) 
+
+		// »ñÈ¡Êó±êĞÅÏ¢
+		while (1)
 		{
 			message = getmessage();
 			if (message.message == WM_LBUTTONDOWN)
@@ -204,33 +242,33 @@ int main()
 				break;
 			}
 		}
-		mp[relx][rely] = {0, 3};
+		mp[relx][rely] = { 0, 3 };
 		fillcircle(relx * 200 + 100, rely * 200 + 100, 70);
 
-		// åˆ¤æ–­æ˜¯å¦æœ‰äººè·èƒœ
+		// ÅĞ¶ÏÊÇ·ñÓĞÈË»ñÊ¤
 		int jud = judge();
-		if (jud == 0) // å·±æ–¹è·èƒœ
+		if (jud == 0) // ¼º·½»ñÊ¤
 		{
 			char gmover[] = "You Win!";
 			outtextxy(30, 650, gmover);
 			break;
 		}
-		else if (jud == 1) // æ•Œæ–¹è·èƒœ
+		else if (jud == 1) // µĞ·½»ñÊ¤
 		{
 			char gmover[] = "You loose!";
 			outtextxy(30, 650, gmover);
 			break;
 		}
 
-		// å‘é€æ•°æ®
+		// ·¢ËÍÊı¾İ
 		sprintf(buffout, "%d%d", relx, rely);
 		send(fd, buffout, strlen(buffout) + 1, 0);
 	}
 
-	// å…³é—­æ–‡ä»¶æè¿°ç¬¦
+	// ¹Ø±ÕÎÄ¼şÃèÊö·û
 	closesocket(fd);
 
-	// é‡Šæ”¾å¥—æ¥å­—åº“
+	// ÊÍ·ÅÌ×½Ó×Ö¿â
 	WSACleanup();
 
 	return 0;
