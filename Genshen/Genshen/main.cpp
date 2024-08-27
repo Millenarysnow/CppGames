@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 
+#define PI 3.14159
+
 int idx_current_anim = 0; // 存储当前动画帧索引
 const int PLAYER_ANIM_NUM = 6; // 动画帧总数常量
 
@@ -77,6 +79,10 @@ private:
 class Player
 {
 public:
+	const int FRAME_WIDTH = 80; // 玩家宽度
+	const int FRAME_HEIGHT = 80; // 玩家高度
+
+public:
 	Player()
 	{
 		loadimage(&img_shadow, _T("img/shadow_player.png"));
@@ -151,16 +157,16 @@ public:
 		// 限制玩家位置
 		if (position.x < 0) position.x = 0;
 		if (position.y < 0) position.y = 0;
-		if (position.x + PLAYER_WIDTH > WINDOW_WIDTH) position.x = WINDOW_WIDTH - PLAYER_WIDTH;
-		if (position.y + PLAYER_HEIGHT > WINDOW_HEIGHT) position.y = WINDOW_HEIGHT - PLAYER_HEIGHT;
+		if (position.x + FRAME_WIDTH > WINDOW_WIDTH) position.x = WINDOW_WIDTH - FRAME_WIDTH;
+		if (position.y + FRAME_HEIGHT > WINDOW_HEIGHT) position.y = WINDOW_HEIGHT - FRAME_HEIGHT;
 	}
 
 	// 绘制玩家
 	void Draw(int delta)
 	{
 		// 使阴影x方向居中，y方向位于玩家脚底
-		int pos_shadow_x = position.x + (PLAYER_WIDTH / 2 - SHADOW_WIDTH / 2); // 使阴影水平居中
-		int pos_shadow_y = position.y + PLAYER_HEIGHT - 8;
+		int pos_shadow_x = position.x + (FRAME_WIDTH / 2 - SHADOW_WIDTH / 2); // 使阴影水平居中
+		int pos_shadow_y = position.y + FRAME_HEIGHT - 8;
 		putimage_alpha(pos_shadow_x, pos_shadow_y, &img_shadow);
 
 		static bool facing_left = false;
@@ -176,6 +182,7 @@ public:
 			anim_right->Play(position.x, position.y, delta);
 	}
 
+	// 获取玩家位置
 	const POINT& GetPosition() const
 	{
 		return position;
@@ -183,8 +190,6 @@ public:
 
 private:
 	const int SPEED = 3;
-	const int PLAYER_WIDTH = 80; // 玩家宽度
-	const int PLAYER_HEIGHT = 80; // 玩家高度
 	const int SHADOW_WIDTH = 32; // 阴影宽度
 
 private:
@@ -266,13 +271,19 @@ public:
 	// 检测与子弹发生碰撞
 	bool CheckBulletCollision(const Bullet& bullet)
 	{
-		return false;
+		bool is_overlap_x = bullet.position.x >= position.x && bullet.position.x <= position.x + FRAME_WIDTH;
+		bool is_overlap_y = bullet.position.y >= position.y && bullet.position.y <= position.y + FRAME_HEIGHT;
+		return is_overlap_x && is_overlap_y;
 	}
 
 	// 检测与玩家发生碰撞
 	bool CheckPlayerCollision(const Player& player)
 	{
-		return false;
+		POINT check_position = { position.x + FRAME_WIDTH / 2, position.y + FRAME_HEIGHT / 2 };
+		POINT player_position = player.GetPosition();
+		bool is_overlap_x = check_position.x >= player_position.x && check_position.x <= player_position.x + player.FRAME_WIDTH;
+		bool is_overlap_y = check_position.y >= player_position.y && check_position.y <= player_position.y + player.FRAME_HEIGHT;
+		return is_overlap_x && is_overlap_y;
 	}
 
 	// 追踪玩家移动
@@ -310,6 +321,18 @@ public:
 		delete anim_right;
 	}
 
+	// 敌人受击逻辑
+	void Hurt()
+	{
+		alive = false;
+	}
+
+	// 判断敌人是否存活
+	bool CheckAlive()
+	{
+		return alive;
+	}
+
 private:
 	const int SPEED = 2;
 	const int FRAME_WIDTH = 80;
@@ -322,6 +345,7 @@ private:
 	Animation* anim_right;
 	POINT position = { 0, 0 };
 	bool facing_left = false;
+	bool alive = true;
 };
 
 // 加载动画
@@ -349,6 +373,23 @@ void TryGenerateEnemy(std::vector<Enemy*>& enemy_list)
 		enemy_list.push_back(new Enemy());
 }
 
+// 更新子弹位置
+void UpdateBullets(std::vector<Bullet>& bullet_list, const Player& player)
+{
+	const double RADIAL_SPEED = 0.0045; // 径向速度
+	const double TANGENT_SPEED = 0.0055; // 切向速度
+	double radian_interval = 2 * PI / bullet_list.size(); // 子弹间隔（弧度制）
+
+	POINT player_position = player.GetPosition();
+	double radius = 100 + 25 * sin(GetTickCount() * RADIAL_SPEED);
+	for (size_t i = 0; i < bullet_list.size(); i++)
+	{
+		double radian = GetTickCount() * TANGENT_SPEED + radian_interval * i; // 当前子弹所在弧度值
+		bullet_list[i].position.x = player_position.x + player.FRAME_WIDTH / 2 + (int)(radius * sin(radian));
+		bullet_list[i].position.y = player_position.y + player.FRAME_HEIGHT / 2 + (int)(radius * cos(radian));
+	}
+}
+
 int main()
 {
 	initgraph(1280, 720); // 初始化窗口为1280*720
@@ -359,6 +400,7 @@ int main()
 	ExMessage msg;
 	IMAGE img_background; // 背景图
 	std::vector<Enemy*> enemy_list; // 敌人列表
+	std::vector<Bullet> bullet_list(3); // 子弹列表
 	
 	loadimage(&img_background, _T("img/background.png")); // 加载背景图
 
@@ -376,9 +418,43 @@ int main()
 
 		// 数据处理
 		player.Move();
+		UpdateBullets(bullet_list, player);
 		TryGenerateEnemy(enemy_list);
 		for (Enemy* enemy : enemy_list)
 			enemy->Move(player);
+
+		// 检测敌人与玩家碰撞
+		for (Enemy* enemy : enemy_list)
+		{
+			if (enemy->CheckPlayerCollision(player))
+			{
+				MessageBox(GetHWnd(), _T("扣“1”观看战败CG"), _T("游戏结束"), MB_OK);
+				running = false;
+				break;
+			}
+		}
+		// 检测子弹和敌人的碰撞
+		for (Enemy* enemy : enemy_list)
+		{
+			for (const Bullet& bullet : bullet_list)
+			{
+				if (enemy->CheckBulletCollision(bullet))
+				{
+					enemy->Hurt();
+				}
+			}
+		}
+		// 移除生命值归零的敌人
+		for (size_t i = 0; i < enemy_list.size(); i++)
+		{
+			Enemy* enemy = enemy_list[i];
+			if (!enemy->CheckAlive())
+			{
+				std::swap(enemy_list[i], enemy_list.back());
+				enemy_list.pop_back();
+				delete enemy;
+			}
+		}
 
 		// 渲染画面
 		cleardevice();
@@ -387,6 +463,8 @@ int main()
 		player.Draw(1000 / 144);
 		for (Enemy* enemy : enemy_list)
 			enemy->Draw(1000 / 144);
+		for (const Bullet& bullet : bullet_list)
+			bullet.Draw();
 
 		FlushBatchDraw();
 
