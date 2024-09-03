@@ -8,6 +8,8 @@
 #include "scene_manager.h"
 #include "selector_scene.h"
 
+#pragma comment(lib, "Winmm.lib")
+
 IMAGE img_menu_background; // Ö÷²Ëµ¥±³¾°Í¼Æ¬
 
 IMAGE img_VS; // VSÒÕÊõ×ÖÍ¼Æ¬
@@ -182,6 +184,8 @@ int main()
 	ExMessage msg;
 	const int FPS = 60;
 
+	load_game_resources();
+
 	initgraph(1280, 720, EW_SHOWCONSOLE);
 
 	BeginBatchDraw();
@@ -202,7 +206,11 @@ int main()
 			scene_manager.on_input(msg);
 		}
 
-		scene_manager.on_update();
+		static DWORD last_tick_time = GetTickCount();
+		DWORD current_tick_time = GetTickCount();
+		DWORD delta_tick = current_tick_time - last_tick_time;
+		scene_manager.on_update(delta_tick);
+		last_tick_time = current_tick_time;
 
 		cleardevice();
 		scene_manager.on_draw();
