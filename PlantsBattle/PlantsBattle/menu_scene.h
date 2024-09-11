@@ -2,6 +2,8 @@
 
 #include "scene.h"
 #include "atlas.h"
+#include "timer.h"
+#include "camera.h"
 #include "animation.h"
 #include "scene_manager.h"
 #include "camera.h"
@@ -24,10 +26,18 @@ public:
 		animation_peashooter_run_right.set_atlas(&atlas_peashooter_run_right);
 		animation_peashooter_run_right.set_interval(75);
 		animation_peashooter_run_right.set_loop(true);
+
+		timer.set_wait_time(1000);
+		timer.set_one_shot(false);
+		timer.set_callback([]()
+			{
+				std::cout << "Shot!" << std::endl;
+			});
 	}
 
 	void on_update(int delta) 
 	{
+		timer.on_update(delta);
 		camera.on_update(delta);
 		animation_peashooter_run_right.on_update(delta);
 	}
@@ -42,7 +52,7 @@ public:
 	{
 		if (msg.message == WM_KEYDOWN)
 		{
-			scene_manager.switch_to(SceneManager::SceneType::Game);
+			camera.shake(10, 350);
 		}
 	}
 	
@@ -54,4 +64,5 @@ public:
 private:
 	Animation animation_peashooter_run_right;
 	Camera camera;
+	Timer timer;
 };
