@@ -84,6 +84,7 @@ Scene* game_scene = nullptr;
 Scene* selector_scene = nullptr;
 
 SceneManager scene_manager;
+Camera main_camera;
 
 // 图集翻转
 void flip_atlas(Atlas& src, Atlas& dst)
@@ -100,9 +101,9 @@ void flip_atlas(Atlas& src, Atlas& dst)
 // 资源加载
 void load_game_resources()
 {
-	AddFontResourceEx(_T("resoures/IPix.ttf"), FR_PRIVATE, NULL); // 加载游戏字体
+	AddFontResourceEx(_T("resources/IPix.ttf"), FR_PRIVATE, NULL); // 加载游戏字体
 
-	loadimage(&img_menu_background, _T("resource/menu_background.png"));
+	loadimage(&img_menu_background, _T("resources/menu_background.png"));
 
 	loadimage(&img_VS, _T("resources/VS.png"));
 	loadimage(&img_1P, _T("resources/1P.png"));
@@ -201,6 +202,7 @@ int main()
 	{
 		DWORD frame_start_time = GetTickCount();
 
+		// 消息处理
 		while (peekmessage(&msg))
 		{
 			scene_manager.on_input(msg);
@@ -213,9 +215,10 @@ int main()
 		last_tick_time = current_tick_time;
 
 		cleardevice();
-		scene_manager.on_draw();
+		scene_manager.on_draw(main_camera);
 		FlushBatchDraw();
 
+		// 稳定帧率
 		DWORD frame_end_time = GetTickCount();
 		DWORD frame_delta_time = frame_end_time - frame_start_time;
 		if (frame_delta_time < 1000 / FPS)

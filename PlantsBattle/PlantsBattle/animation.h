@@ -4,6 +4,7 @@
 #include <functional>
 #include "atlas.h"
 #include "util.h"
+#include "camera.h"
 
 // 动画类
 class Animation
@@ -29,6 +30,7 @@ public:
 		is_loop = flag;
 	}
 
+	// 设置帧间隔
 	void set_interval(int ms)
 	{
 		interval = ms;
@@ -69,7 +71,7 @@ public:
 		}
 	}
 
-	void on_draw(int x, int y) const
+	void on_draw(const Camera& camera,int x, int y) const
 	{
 		putimage_alpha(x, y, atlas->get_image(idx_frame));
 	}
