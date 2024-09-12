@@ -3,12 +3,16 @@
 #include "util.h"
 #include "atlas.h"
 #include "scene.h"
+#include "player.h"
+#include "platform.h"
 #include "menu_scene.h"
 #include "game_scene.h"
 #include "scene_manager.h"
 #include "selector_scene.h"
 
 #pragma comment(lib, "Winmm.lib")
+
+bool is_debug = false; // 是否开启调试模式
 
 IMAGE img_menu_background; // 主菜单背景图片
 
@@ -85,6 +89,11 @@ Scene* selector_scene = nullptr;
 
 SceneManager scene_manager;
 Camera main_camera;
+
+std::vector<Platform> platform_list;
+
+Player* player_1 = nullptr;
+Player* player_2 = nullptr;
 
 // 图集翻转
 void flip_atlas(Atlas& src, Atlas& dst)

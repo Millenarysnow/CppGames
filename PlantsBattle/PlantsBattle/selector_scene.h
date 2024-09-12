@@ -3,6 +3,12 @@
 #include "scene.h"
 #include "scene_manager.h"
 #include "animation.h"
+#include "sunflower_player.h"
+#include "peashooter_player.h"
+#include "player_id.h"
+
+extern Player* player_1;
+extern Player* player_2;
 
 extern IMAGE img_VS; // VS艺术字图片
 extern IMAGE img_1P; // 1P文本图片
@@ -241,7 +247,27 @@ public:
 
 	void on_exit()
 	{
+		switch (player_type_1)
+		{
+		case PlayerType::Peashooter:
+			player_1 = new PeashooterPlayer();
+			break;
+		case PlayerType::Sunflower:
+			player_1 = new SunflowerPlayer();
+			break;
+		}
+		player_1->set_id(PlayerID::P1);
 
+		switch (player_type_2)
+		{
+		case PlayerType::Peashooter:
+			player_2 = new PeashooterPlayer();
+			break;
+		case PlayerType::Sunflower:
+			player_2 = new SunflowerPlayer();
+			break;
+		}
+		player_2->set_id(PlayerID::P2);
 	}
 
 private:
