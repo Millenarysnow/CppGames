@@ -185,9 +185,15 @@ int main()
 	ExMessage msg;
 	const int FPS = 60;
 
+	// 加载资源
 	load_game_resources();
 
+	// 初始化窗口
 	initgraph(1280, 720, EW_SHOWCONSOLE);
+
+	// 设置字体样式
+	settextstyle(28, 0, _T("IPix"));
+	setbkmode(TRANSPARENT);
 
 	BeginBatchDraw();
 

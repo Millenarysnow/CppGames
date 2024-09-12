@@ -2,9 +2,11 @@
 #pragma once
 
 #include <graphics.h>
+#include "camera.h"
 
 #pragma comment(lib, "MSIMG32.LIB")
 
+// 基础透明渲染
 inline void putimage_alpha(int dst_x, int dst_y, IMAGE* img)
 {
 	int w = img->getwidth();
@@ -13,13 +15,23 @@ inline void putimage_alpha(int dst_x, int dst_y, IMAGE* img)
 		GetImageHDC(img), 0, 0, w, h, { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA });
 }
 
-inline void putimage_alpha(const Camera& camera,int dst_x, int dst_y, IMAGE* img)
+// 支持摄像机
+inline void putimage_alpha(const Camera& camera, int dst_x, int dst_y, IMAGE* img)
 {
 	int w = img->getwidth();
 	int h = img->getheight();
 	const Vector2& pos_camera = camera.get_position();
 	AlphaBlend(GetImageHDC(GetWorkingImage()), (int)(dst_x - pos_camera.x), (int)(dst_y - pos_camera.y), w, h,
 		GetImageHDC(img), 0, 0, w, h, { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA });
+}
+
+// 支持裁剪
+inline void putimage_alpha(int dst_x, int dst_y, int width, int height, IMAGE* img, int src_x, int src_y)
+{
+	int w = width > 0 ? width : img->getwidth();
+	int h = height > 0 ? height : img->getheight();
+	AlphaBlend(GetImageHDC(GetWorkingImage()), dst_x, dst_y, w, h,
+		GetImageHDC(img), src_x, src_y, w, h, { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA });
 }
 
 // 水平翻转图片
