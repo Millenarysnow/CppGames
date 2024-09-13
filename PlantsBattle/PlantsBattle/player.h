@@ -1,6 +1,7 @@
 #pragma once
 
 #include "camera.h"
+#include "particle.h"
 #include "bullet.h"
 #include "vector2.h"
 #include "animation.h"
@@ -12,6 +13,8 @@ extern bool is_debug;
 
 extern std::vector<Platform> platform_list;
 extern std::vector<Bullet*> bullet_list;
+
+extern Atlas atlas_run_effect; // 奔跑特效动画图集
 
 class Player
 {
@@ -39,6 +42,26 @@ public:
 			{
 				is_showing_sketch_frame = !is_showing_sketch_frame;
 			});
+
+		timer_run_effect_generation.set_wait_time(75);
+		timer_run_effect_generation.set_callback([&]()
+			{
+				Vector2 particle_position;
+				IMAGE* frame = atlas_run_effect.get_image(0);
+				particle_position.x = position.x + (size.x - frame->getwidth()) / 2;
+				particle_position.y = position.y + size.y - frame->getheight();
+				particle_list.emplace_back(particle_position, &atlas_run_effect, 45);
+			});
+
+		timer_die_effect_generation.set_wait_time(35);
+		timer_die_effect_generation.set_callback([&]()
+			{
+				Vector2 particle_position;
+				IMAGE* frame = atlas_run_effect.get_image(0);
+				particle_position.x = position.x + (size.x - frame->getwidth()) / 2;
+				particle_position.y = position.y + size.y - frame->getheight();
+				particle_list.emplace_back(particle_position, &atlas_run_effect, 105);
+			});
 	}
 
 	~Player() = default;
@@ -59,6 +82,7 @@ public:
 		else
 		{
 			current_animation = is_facing_right ? &animation_idle_right : &animation_idle_left;
+			timer_run_effect_generation.pause();
 		}
 
 		if (is_attacking_ex)
@@ -69,6 +93,20 @@ public:
 		timer_attack_cd.on_update(delta);
 		timer_invulnerable.on_update(delta);
 		timer_invulnerable_blink.on_update(delta);
+		timer_run_effect_generation.on_update(delta);
+		
+		if (hp <= 0)
+			timer_die_effect_generation.on_update(delta);
+
+		particle_list.erase(std::remove_if(
+			particle_list.begin(), particle_list.end(),
+			[](const Particle& particle)
+			{
+				return !particle.check_valid();
+			}),
+			particle_list.end());
+		for (Particle& particle : particle_list)
+			particle.on_update(delta);
 
 		if (is_showing_sketch_frame)
 			sketch_image(current_animation->get_frame(), &img_sketch);
@@ -78,6 +116,9 @@ public:
 
 	virtual void on_draw(const Camera& camera)
 	{
+		for (const Particle& particle : particle_list)
+			particle.on_draw(camera);
+
 		if (hp > 0 && is_invulnerable && is_showing_sketch_frame)
 			putimage_alpha(camera, (int)position.x, (int)position.y, &img_sketch);
 		else
@@ -193,6 +234,7 @@ public:
 			return;
 
 		position.x += distance;
+		timer_run_effect_generation.resume();
 	}
 
 	virtual void on_jump()
@@ -336,4 +378,9 @@ protected:
 	bool is_showing_sketch_frame = false; // 当前帧是否应该显示剪影
 	Timer timer_invulnerable; // 无敌状态定时器
 	Timer timer_invulnerable_blink; // 无敌状态闪烁定时器
+
+	std::vector<Particle> particle_list; // 粒子对象列表
+
+	Timer timer_run_effect_generation; // 跑动特效粒子发射定时器
+	Timer timer_die_effect_generation; // 死亡特效粒子发射定时器
 };
