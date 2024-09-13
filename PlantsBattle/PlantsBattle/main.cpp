@@ -3,6 +3,7 @@
 #include "util.h"
 #include "atlas.h"
 #include "scene.h"
+#include "bullet.h"
 #include "player.h"
 #include "platform.h"
 #include "menu_scene.h"
@@ -91,6 +92,7 @@ SceneManager scene_manager;
 Camera main_camera;
 
 std::vector<Platform> platform_list;
+std::vector<Bullet*> bullet_list;
 
 Player* player_1 = nullptr;
 Player* player_2 = nullptr;
