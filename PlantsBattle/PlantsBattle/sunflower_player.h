@@ -13,6 +13,9 @@ extern Atlas atlas_sunflower_attack_ex_left; // 向日葵向左的特殊攻击动画图集
 extern Atlas atlas_sunflower_attack_ex_right; // 向日葵向右的特殊攻击动画图集
 extern Atlas atlas_sun_text; // “日”文本动画图集
 
+extern Player* player_1;
+extern Player* player_2;
+
 class SunflowerPlayer : public Player
 {
 public:
@@ -81,7 +84,53 @@ public:
 
 	void on_attack()
 	{
+		Bullet* bullet = new SunBullet();
 
+		Vector2 bullet_position;
+		const Vector2& bullet_size = bullet->get_size();
+		bullet_position.x = position.x + (size.x - bullet_size.x) / 2;
+		bullet_position.y = position.y;
+
+		bullet->set_position(bullet_position.x, bullet_position.y);
+		bullet->set_velocity(is_facing_right ? velocity_sun.x : -velocity_sun.x, velocity_sun.y);
+	
+		bullet->set_collide_target(id == PlayerID::P1 ? PlayerID::P2 : PlayerID::P1);
+	
+		bullet->set_callback([&]() {mp += 35; });
+
+		bullet_list.push_back(bullet);
+	}
+
+	void on_attack_ex()
+	{
+		is_attacking_ex = true;
+		is_sun_text_visible = true;
+
+		animation_sun_text.reset();
+		is_facing_right ? animation_attack_ex_right.reset() : animation_attack_ex_left.reset();
+	
+		Bullet* bullet = new SunBulletEx();
+		Player* target_player = (id == PlayerID::P1 ? player_2 : player_1);
+		
+		Vector2 bullet_position, bullet_velocity;
+		const Vector2& bullet_size = bullet->get_size();
+		const Vector2& target_size = target_player->get_size();
+		const Vector2& target_position = target_player->get_position();
+		bullet_position.x = target_position.x + (target_size.x - bullet_size.x) / 2;
+		bullet_position.y = -size.y;
+		bullet_velocity.x = 0;
+		bullet_velocity.y = speed_sun_ex;
+
+		bullet->set_position(bullet_position.x, bullet_position.y);
+		bullet->set_velocity(bullet_velocity.x, bullet_velocity.y);
+
+		bullet->set_collide_target(id == PlayerID::P1 ? PlayerID::P2 : PlayerID::P1);
+
+		bullet->set_callback([&]() {mp += 50; });
+
+		bullet_list.push_back(bullet);
+
+		mciSendString(_T("play sun_text from 0"), NULL, 0, NULL);
 	}
 	
 private:

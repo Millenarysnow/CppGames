@@ -179,6 +179,16 @@ public:
 		position.y = y;
 	}
 
+	const Vector2& get_position() const
+	{
+		return position;
+	}
+
+	const Vector2& get_size() const
+	{
+		return size;
+	}
+
 	virtual void on_attack() { }
 	virtual void on_attack_ex() { }
 
