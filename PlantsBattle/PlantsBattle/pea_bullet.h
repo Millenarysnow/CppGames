@@ -58,6 +58,8 @@ public:
 			putimage_alpha(camera, (int)position.x, (int)position.y, &img_pea);
 		else
 			animation_break.on_draw(camera, (int)position.x, (int)position.y);
+	
+		Bullet::on_draw(camera);
 	}
 
 private:

@@ -61,3 +61,21 @@ inline void flip_image(IMAGE* src, IMAGE* dst) // src - 原图片；dst - 处理后图片
 	}
 }
 
+// 处理剪影图片
+inline void sketch_image(IMAGE* src, IMAGE* dst)
+{
+	int w = src->getwidth();
+	int h = src->getheight();
+	Resize(dst, w, h);
+	DWORD* src_buffer = GetImageBuffer(src);
+	DWORD* dst_buffer = GetImageBuffer(dst);
+	for (int y = 0; y < h; y++)
+	{
+		for (int x = 0; x < w; x++)
+		{
+			int idx = y * w + x;
+			dst_buffer[idx] = BGR(RGB(255, 255, 255)) | (src_buffer[idx] & 0xFF000000);
+		}
+	}
+}
+

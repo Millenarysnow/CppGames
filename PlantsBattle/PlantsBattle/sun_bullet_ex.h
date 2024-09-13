@@ -67,7 +67,7 @@ public:
 			can_remove = true;
 	}
 
-	void on_drwa(const Camera& camera) const
+	void on_draw(const Camera& camera) const
 	{
 		if (valid)
 			animation_idle.on_draw(camera, (int)position.x, (int)position.y);
@@ -78,6 +78,8 @@ public:
 				(int)(position.x + explode_render_offset.x),
 				(int)(position.y + explode_render_offset.y));
 		}
+
+		Bullet::on_draw(camera);
 	}
 
 private:

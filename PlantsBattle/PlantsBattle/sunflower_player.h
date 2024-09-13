@@ -26,7 +26,7 @@ public:
 		animation_run_left.set_atlas(&atlas_sunflower_run_left);
 		animation_run_right.set_atlas(&atlas_sunflower_run_right);
 		animation_attack_ex_left.set_atlas(&atlas_sunflower_attack_ex_left);
-		animation_attack_ex_right.set_atlas(&atlas_peashooter_attack_ex_right);
+		animation_attack_ex_right.set_atlas(&atlas_sunflower_attack_ex_right);
 		animation_sun_text.set_atlas(&atlas_sun_text);
 
 		animation_idle_left.set_interval(75);
