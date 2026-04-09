@@ -1,1 +1,17 @@
 .vscode/
+
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+.vs/
+
+Debug/
+Release/
+x64/
+x86/
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.tlog
+*.idb
