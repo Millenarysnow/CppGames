@@ -16,10 +16,3 @@
 2. Local 端在 Windows 11 下开发
 3. Local 端使用 VS2019 开发
 4. Local 端依赖 Easyx2023 大暑版
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
